@@ -1,0 +1,46 @@
+@startuml
+
+participant User as USER
+participant ATM_Service as ATM
+participant Transaction_Service as TRANSACTION
+participant Transfer_Service as TRANSFER
+participant Account_Service as ACCOUNT
+participant Message as MESSAGE
+
+USER -> ATM: Transfer
+
+ATM -> ACCOUNT: getAccount(fromAccount)
+ACCOUNT --> ATM: result getAccount(fromAccount)
+
+ATM -> ACCOUNT: getAccount(toAccount)
+ACCOUNT --> ATM: result getAccount(toAccount)
+
+alt check account is valid
+    ATM -> ACCOUNT: SubscriptionQuery getAccount()
+    ATM -> TRANSACTION: createTransaction()
+    TRANSACTION --> TRANSACTION: result createTransaction()
+
+    TRANSACTION -> TRANSFER: createTransfer()
+    TRANSFER --> TRANSACTION: result createTransfer()
+
+    TRANSACTION -> ACCOUNT: getAccount()
+    ACCOUNT --> TRANSACTION: result getAccount()
+
+    TRANSACTION -> ACCOUNT: updateAccount(fromAccount)
+    ACCOUNT --> TRANSACTION: result updateAccount(fromAccount)
+    TRANSACTION -> ACCOUNT: updateAccount(toAccount)
+    ACCOUNT --> TRANSACTION: result updateAccount(toAccount)
+
+    TRANSACTION -> ACCOUNT: getAccount()
+    ACCOUNT --> TRANSACTION: result getAccount()
+    TRANSACTION -> ACCOUNT: queryUpdateEmitter getAccount()
+    ACCOUNT --> ATM: result getAccount()
+
+    ATM -> MESSAGE: send message
+
+else else
+    ATM -> MESSAGE: send error message
+end
+
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+
+participant ATM as USER
+participant ATM_Service as ATM
+participant Account_Service as ACCOUNT
+participant Message as MESSAGE
+
+USER -> ATM: Login
+
+ATM -> ACCOUNT: getAccount()
+ACCOUNT --> ATM: result getAccount()
+
+alt account is exists
+    ATM -> MESSAGE: send hello message with balance
+else else
+    ATM -> ACCOUNT: createAccount()
+    ACCOUNT --> ATM: result createAccount()
+
+    alt account is created
+        ATM -> MESSAGE: send hello message with balance:0
+    else else
+        ATM -> MESSAGE: send error message
+    end
+end
+
+@enduml

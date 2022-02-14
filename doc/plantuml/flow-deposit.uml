@@ -1,0 +1,51 @@
+@startuml
+
+participant User as USER
+participant ATM_Service as ATM
+participant Transaction_Service as TRANSACTION
+participant Deposit_Service as DEPOSIT
+participant Transfer_Service as TRANSFER
+participant Account_Service as ACCOUNT
+participant Message as MESSAGE
+
+USER -> ATM: Deposit
+
+ATM -> ACCOUNT: getAccount()
+ACCOUNT --> ATM: result getAccount()
+
+alt check account is valid
+    ATM -> ACCOUNT: SubscriptionQuery getAccount()
+    ATM -> TRANSACTION: createTransaction()
+    TRANSACTION --> TRANSACTION: result createTransaction()
+
+    TRANSACTION -> ACCOUNT: getAccount()
+    ACCOUNT --> TRANSACTION: result getAccount()
+
+    alt if have owe
+        TRANSACTION -> TRANSFER: createTransfer()
+        TRANSFER --> TRANSACTION: result createTransfer()
+
+        alt if deposit amount > owe amount
+                TRANSACTION -> DEPOSIT: createDeposit()
+                DEPOSIT --> TRANSACTION: result createDeposit()
+        end
+    end
+
+    TRANSACTION -> DEPOSIT: createDeposit()
+    DEPOSIT --> TRANSACTION: result createDeposit()
+
+    TRANSACTION -> ACCOUNT: updateAccount()
+    ACCOUNT --> TRANSACTION: result updateAccount()
+
+    TRANSACTION -> ACCOUNT: getAccount()
+    ACCOUNT --> TRANSACTION: result getAccount()
+    TRANSACTION -> ACCOUNT: queryUpdateEmitter getAccount()
+    ACCOUNT --> ATM: result getAccount()
+
+    ATM -> MESSAGE: send message
+
+else else
+    ATM -> MESSAGE: send error message
+end
+
+@enduml
